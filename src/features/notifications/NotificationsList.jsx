@@ -1,13 +1,29 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { formatDistanceToNow, parseISO } from 'date-fns'
+import classnames from 'classnames'
 
 import { selectAllUsers } from '../users/usersSlice'
-import { selectAllNotifications } from './notificationsSlice'
+
+import {
+  selectAllNotifications,
+  allNotificationsRead,
+} from './notificationsSlice'
 
 export const NotificationsList = () => {
+  const dispatch = useDispatch()
   const notifications = useSelector(selectAllNotifications)
   const users = useSelector(selectAllUsers)
+
+  useEffect(() => {
+    dispatch(allNotificationsRead())
+
+    /*
+    This dispatch runs twice, first after mounting, second after updating the state
+    The reducer runs again, but this time no data changes, so the component doesn't re-render
+    But, this isn't actually hurting anything, so we can leave it alone
+    */
+  })
 
   const renderedNotifications = notifications.map((notification) => {
     const date = parseISO(notification.date)
@@ -16,12 +32,15 @@ export const NotificationsList = () => {
       name: 'Unknown User',
     }
 
+    const notificationClassname = classnames('notification', {
+      new: notification.isNew,
+    })
+
     return (
-      <div key={notification.id} className="notification">
+      <div key={notification.id} className={notificationClassname}>
         <div>
           <b>{user.name}</b> {notification.message}
         </div>
-        
         <div title={notification.date}>
           <i>{timeAgo} ago</i>
         </div>
@@ -32,7 +51,6 @@ export const NotificationsList = () => {
   return (
     <section className="notificationsList">
       <h2>Notifications</h2>
-
       {renderedNotifications}
     </section>
   )
