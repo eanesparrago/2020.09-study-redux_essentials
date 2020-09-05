@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import PostExcerpt from './PostExcerpt'
 import { selectAllPosts, fetchPosts } from './postsSlice'
 
-export const PostsList = () => {
+const PostsList = () => {
   const dispatch = useDispatch()
   const posts = useSelector(selectAllPosts)
 
@@ -61,3 +61,5 @@ export const PostsList = () => {
     </section>
   )
 }
+
+export default React.memo(PostsList)
